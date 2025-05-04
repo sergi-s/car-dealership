@@ -189,13 +189,13 @@ const VehicleDetailPage = () => {
             </div>
           </div>
 
-          <div className="vehicle-tabs">
+          {/* <div className="vehicle-tabs">
             <div className="tabs-navigation">
               <button className="tab-button active">Details</button>
               <button className="tab-button">Features</button>
               <button className="tab-button">Specifications</button>
             </div>
-          </div>
+          </div> */}
 
           <div className="vehicle-details-section">
             <h2>Vehicle Details</h2>
@@ -268,8 +268,8 @@ const VehicleDetailPage = () => {
             <p>Check out our other vehicles that might interest you.</p>
             <div className="action-buttons">
               <Link to="/inventory" className="btn-outline"><i className="fas fa-car"></i> Browse Inventory</Link>
-              <button className="btn-outline"><i className="fas fa-share-alt"></i> Share Vehicle</button>
-              <button className="btn-outline"><i className="fas fa-print"></i> Print Details</button>
+              {/* <button className="btn-outline"><i className="fas fa-share-alt"></i> Share Vehicle</button> */}
+              {/* <button className="btn-outline"><i className="fas fa-print"></i> Print Details</button> */}
             </div>
           </div>
         </div>

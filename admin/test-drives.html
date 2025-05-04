@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Drive Management - Premium Motors</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="admin-logo">
+                <img src="/api/placeholder/160/60" alt="Premium Motors Logo">
+            </div>
+            <nav class="admin-nav">
+                <ul>
+                    <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="inventory.html"><i class="fas fa-car"></i> Inventory</a></li>
+                    <li><a href="add-vehicle.html"><i class="fas fa-plus-circle"></i> Add Vehicle</a></li>
+                    <li><a href="inquiries.html"><i class="fas fa-envelope"></i> Inquiries</a></li>
+                    <li><a href="test-drives.html" class="active"><i class="fas fa-calendar-alt"></i> Test Drives</a></li>
+                    <li><a href="customers.html"><i class="fas fa-users"></i> Customers</a></li>
+                    <li><a href="settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li><a href="../index.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-content">
+            <div class="admin-header">
+                <h1>Test Drive Management</h1>
+                <div class="admin-user">
+                    <div class="admin-user-image">
+                        <img src="/api/placeholder/40/40" alt="Admin User">
+                    </div>
+                    <div class="admin-user-info">
+                        <h4>John Smith</h4>
+                        <p>Administrator</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Drive Stats -->
+            <section class="dashboard-stats" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>38</h3>
+                        <p>Total Test Drives</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>24</h3>
+                        <p>Completed</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>14</h3>
+                        <p>Upcoming</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>3</h3>
+                        <p>Today's Test Drives</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Calendar View Tab Navigation -->
+            <section class="calendar-view" style="margin: 20px 0;">
+                <div class="tab-navigation" style="display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 20px;">
+                    <button class="tab-btn active" data-tab="appointments">Appointments</button>
+                    <button class="tab-btn" data-tab="calendar">Calendar View</button>
+                    <button class="tab-btn" data-tab="create">Create Appointment</button>
+                </div>
+                
+                <!-- Test Drive Controls -->
+                <div class="tab-content" id="appointments-tab" style="display: block;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <div class="search-box" style="position: relative; width: 300px;">
+                            <input type="text" placeholder="Search appointments..." style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
+                            <i class="fas fa-search" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-light);"></i>
+                        </div>
+                        <div class="filter-actions" style="display: flex; gap: 10px;">
+                            <select style="padding: 0.75rem; border-radius: var(--border-radius); border: 1px solid var(--border-color); background-color: white;">
+                                <option>All Status</option>
+                                <option>Scheduled</option>
+                                <option>Completed</option>
+                                <option>Canceled</option>
+                            </select>
+                            <select style="padding: 0.75rem; border-radius: var(--border-radius); border: 1px solid var(--border-color); background-color: white;">
+                                <option>All Sales Associates</option>
+                                <option>Alexandra Chen</option>
+                                <option>Michael Rodriguez</option>
+                                <option>Jennifer Williams</option>
+                                <option>David Parker</option>
+                            </select>
+                            <select style="padding: 0.75rem; border-radius: var(--border-radius); border: 1px solid var(--border-color); background-color: white;">
+                                <option>Sort by: Date (Newest)</option>
+                                <option>Sort by: Date (Oldest)</option>
+                                <option>Sort by: Name A-Z</option>
+                                <option>Sort by: Name Z-A</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Test Drive List -->
+                    <div class="recent-card">
+                        <div class="card-content">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <input type="checkbox" id="select-all">
+                                        </th>
+                                        <th>Customer</th>
+                                        <th>Vehicle</th>
+                                        <th>Date & Time</th>
+                                        <th>Sales Associate</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox">
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; flex-direction: column;">
+                                                <p style="font-weight: 600; margin-bottom: 2px;">Robert Johnson</p>
+                                                <p style="font-size: 0.8rem; color: #777; margin: 0;">r.johnson@example.com</p>
+                                                <p style="font-size: 0.8rem; color: #777; margin: 0;">(555) 123-4567</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <div style="width: 50px; height: 40px; overflow: hidden; border-radius: 4px;">
+                                                    <img src="/api/placeholder/50/40" alt="Vehicle" style="width: 100%; height: 100%; object-fit: cover;">
+                                                </div>
+                                                <div>
+                                                    <p style="font-weight: 600; margin-bottom: 2px;">Mercedes-Benz S580</p>
+                                                    <p style="font-size: 0.8rem; color: #777; margin: 0;">VH-2480</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; flex-direction: column;">
+                                                <p style="font-weight: 500; margin-bottom: 2px;">May 3, 2025</p>
+                                                <p style="font-size: 0.8rem; color: #777; margin: 0;">10:00 AM</p>
+                                            </div>
+                                        </td>
+                                        <td>Alexandra Chen</td>
+                                        <td><span class="status status-pending">Scheduled</span></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <button class="btn-icon view" title="View" data-test-drive-id="1"><i class="fas fa-eye"></i></button>
+                                                <button class="btn-icon edit" title="Edit"><i class="fas fa-edit"></i></button>
+                                                <button class="btn-icon delete" title="Cancel"><i class="fas fa-times"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox">
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; flex-direction: column;">
+                                                <p style="font-weight: 600; margin-bottom: 2px;">Sarah Williams</p>
+                                                <p style="font-size: 0.8rem; color: #777; margin: 0;">sarahw@example.com</p>
+                                                <p style="font-size: 0.8rem; color: #777; margin: 0;">(555) 987-6543</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <div style="width: 50px; height: 40px; overflow: hidden; border-radius: 4px;">
+                                                    <img src="/api/placeholder/50/40" alt="Vehicle" style="width: 100%; height: 100%; object-fit: cover;">
+                                                </div>
+                                                <div>
+                                                    <p style="font-weight: 600; margin-bottom: 2px;">BMW X7 M50i</p>
+                                                    <p style="font-size: 0.8rem; color: #777; margin: 0;">VH-2325</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; flex-direction: column;">
+                                                <p style="font-weight: 500; margin-bottom: 2px;">May 2, 2025</p>
+                                                <p style="font-size: 0.8rem; color: #777; margin: 0;">3:30 PM</p>
+                                            </div>
+                                        </td>
+                                        <td>Michael Rodriguez</td>
+                                        <td><span class="status status-active">Completed</span></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <button class="btn-icon view" title="View" data-test-drive-id="2"><i class="fas fa-eye"></i></button>
+                                                <button class="btn-icon edit" title="Edit"><i class="fas fa-edit"></i></button>
+                                                <button class="btn-icon delete" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox">
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; flex-direction: column;">
+                                                <p style="font-weight: 600; margin-bottom: 2px;">Michael Davis</p>
+                                                <p style="font-size: 0.8rem; color: #777; margin: 0;">m.davis@example.com</p>
+                                                <p style="font-size: 0.8rem; color: #777; margin: 0;">(555) 456-7890</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <div style="width: 50px; height: 40px; overflow: hidden; border-radius: 4px;">
+                                                    <img src="/api/placeholder/50/40" alt="Vehicle" style="width: 100%; height: 100%; object-fit: cover;">
+                                                </div>
+                                                <div>
+                                                    <p style="font-weight: 600; margin-bottom: 2px;">Porsche Taycan Turbo S</p>
+                                                    <p style="font-size: 0.8rem; color: #777; margin: 0;">VH-2324</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; flex-direction: column;">
+                                                <p style="font-weight: 500; margin-bottom: 2px;">May 2, 2025</p>
+                                                <p style="font-size: 0.8rem; color: #777; margin: 0;">11:15 AM</p>
+                                            </div>
+                                        </td>
+                                        <td>Jennifer Williams</td>
+                                        <td><span class="status status-active">Completed</span></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <button class="btn-icon view" title="View" data-test-drive-id="3"><i class="fas fa-eye"></i></button>
+                                                <button class="btn-icon edit" title="Edit"><i class="fas fa-edit"></i></button>
+                                                <button class="btn-icon delete" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox">
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; flex-direction: column;">
+                                                <p style="font-weight: 600; margin-bottom: 2px;">Jessica Brown</p>
+                                                <p style="font-size: 0.8rem; color: #777; margin: 0;">jbrown@example.com</p>
+                                                <p style="font-size: 0.8rem; color: #777; margin: 0;">(555) 789-0123</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <div style="width: 50px; height: 40px; overflow: hidden; border-radius: 4px;">
+                                                    <img src="/api/placeholder/50/40" alt="Vehicle" style="width: 100%; height: 100%; object-fit: cover;">
+                                                </div>
+                                                <div>
+                                                    <p style="font-weight: 600; margin-bottom: 2px;">Lexus LC 500 Convertible</p>
+                                                    <p style="font-size: 0.8rem; color: #777; margin: 0;">VH-2256</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; flex-direction: column;">
+                                                <p style="font-weight: 500; margin-bottom: 2px;">May 4, 2025</p>
+                                                <p style="font-size: 0.8rem; color: #777; margin: 0;">2:00 PM</p>
+                                            </div>
+                                        </td>
+                                        <td>David Parker</td>
+                                        <td><span class="status status-pending">Scheduled</span></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <button class="btn-icon view" title="View" data-test-drive-id="4"><i class="fas fa-eye"></i></button>
+                                                <button class="btn-icon edit" title="Edit"><i class="fas fa-edit"></i></button>
+                                                <button class="btn-icon delete" title="Cancel"><i class="fas fa-times"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox">
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; flex-direction: column;">
+                                                <p style="font-weight: 600; margin-bottom: 2px;">David Wilson</p>
+                                                <p style="font-size: 0.8rem; color: #777; margin: 0;">dwilson@example.com</p>
+                                                <p style="font-size: 0.8rem; color: #777; margin: 0;">(555) 234-5678</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <div style="width: 50px; height: 40px; overflow: hidden; border-radius: 4px;">
+                                                    <img src="/api/placeholder/50/40" alt="Vehicle" style="width: 100%; height: 100%; object-fit: cover;">
+                                                </div>
+                                                <div>
+                                                    <p style="font-weight: 600; margin-bottom: 2px;">Audi RS7 Sportback</p>
+                                                    <p style="font-size: 0.8rem; color: #777; margin: 0;">VH-2412</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="display: flex; flex-direction: column;">
+                                                <p style="font-weight: 500; margin-bottom: 2px;">May 3, 2025</p>
+                                                <p style="font-size: 0.8rem; color: #777; margin: 0;">4:45 PM</p>
+                                            </div>
+                                        </td>
+                                        <td>Alexandra Chen</td>
+                                        <td><span class="status status-pending">Scheduled</span></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <button class="btn-icon view" title="View" data-test-drive-id="5"><i class="fas fa-eye"></i></button>
+                                                <button class="btn-icon edit" title="Edit"><i class="fas fa-edit"></i></button>
+                                                <button class="btn-icon delete" title="Cancel"><i class="fas fa-times"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Bulk Actions Bar -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+                        <div style="display: flex; align-items: center;">
+                            <select style="padding: 0.5rem; border-radius: var(--border-radius); border: 1px solid var(--border-color); margin-right: 10px;">
+                                <option>Bulk Actions</option>
+                                <option>Mark as Completed</option>
+                                <option>Cancel Selected</option>
+                                <option>Delete Selected</option>
+                            </select>
+                            <button class="btn-outline" style="padding: 0.5rem 1rem;">Apply</button>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        <div class="admin-pagination">
+                            <button class="page-btn prev disabled"><i class="fas fa-chevron-left"></i></button>
+                            <button class="page-btn active">1</button>
+                            <button class="page-btn">2</button>
+                            <button class="page-btn">3</button>
+                            <button class="page-btn next"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Calendar View -->
+                <div class="tab-content" id="calendar-tab" style="display: none;">
+                    <div class="calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div class="calendar-nav">
+                            <button class="btn-outline"><i class="fas fa-chevron-left"></i></button>
+                            <h3 style="display: inline-block; margin: 0 15px;">May 2025</h3>
+                            <button class="btn-outline"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                        <div class="view-options">
+                            <button class="btn-outline active">Month</button>
+                            <button class="btn-outline">Week</button>
+                            <button class="btn-outline">Day</button>
+                        </div>
+                    </div>
+                    
+                    <div class="calendar-container" style="border: 1px solid var(--border-color); border-radius: var(--border-radius); overflow: hidden;">
+                        <div class="calendar-weekdays" style="display: grid; grid-template-columns: repeat(7, 1fr); background-color: var(--primary-color); color: white; font-weight: 600; text-align: center; padding: 10px 0;">
+                            <div>Sun</div>
+                            <div>Mon</div>
+                            <div>Tue</div>
+                            <div>Wed</div>
+                            <div>Thu</div>
+                            <div>Fri</div>
+                            <div>Sat</div>
+                        </div>
+                        
+                        <div class="calendar-days" style="display: grid; grid-template-columns: repeat(7, 1fr); grid-template-rows: repeat(5, 1fr); height: 600px; background-color: white;">
+                            <!-- Previous month days (April) -->
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); color: #ccc;">
+                                <div class="day-number">27</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); color: #ccc;">
+                                <div class="day-number">28</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); color: #ccc;">
+                                <div class="day-number">29</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); color: #ccc;">
+                                <div class="day-number">30</div>
+                            </div>
+                            
+                            <!-- May days -->
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">1</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">2</div>
+                                <div style="background-color: #e9f5fe; padding: 5px; border-radius: 4px; margin-top: 5px; font-size: 0.8rem;">
+                                    <p style="margin: 0;">11:15 AM - Michael D.</p>
+                                    <p style="margin: 0; font-weight: 600;">Porsche Taycan</p>
+                                </div>
+                                <div style="background-color: #e9f5fe; padding: 5px; border-radius: 4px; margin-top: 5px; font-size: 0.8rem;">
+                                    <p style="margin: 0;">3:30 PM - Sarah W.</p>
+                                    <p style="margin: 0; font-weight: 600;">BMW X7 M50i</p>
+                                </div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); background-color: #f8f9fa;">
+                                <div class="day-number">3</div>
+                                <div style="background-color: #e9f5fe; padding: 5px; border-radius: 4px; margin-top: 5px; font-size: 0.8rem;">
+                                    <p style="margin: 0;">10:00 AM - Robert J.</p>
+                                    <p style="margin: 0; font-weight: 600;">MB S580</p>
+                                </div>
+                                <div style="background-color: #e9f5fe; padding: 5px; border-radius: 4px; margin-top: 5px; font-size: 0.8rem;">
+                                    <p style="margin: 0;">4:45 PM - David W.</p>
+                                    <p style="margin: 0; font-weight: 600;">Audi RS7</p>
+                                </div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); background-color: #f8f9fa;">
+                                <div class="day-number">4</div>
+                                <div style="background-color: #e9f5fe; padding: 5px; border-radius: 4px; margin-top: 5px; font-size: 0.8rem;">
+                                    <p style="margin: 0;">2:00 PM - Jessica B.</p>
+                                    <p style="margin: 0; font-weight: 600;">Lexus LC 500</p>
+                                </div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">5</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">6</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">7</div>
+                            </div>
+                            
+                            <!-- Remaining days of May (simplified) -->
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">8</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">9</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">10</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">11</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">12</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">13</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">14</div>
+                            </div>
+                            
+                            <!-- More days... (rows 3-5) -->
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">15</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">16</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">17</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">18</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">19</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">20</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">21</div>
+                            </div>
+                            
+                            <!-- Row 4 -->
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">22</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">23</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">24</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">25</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">26</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">27</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">28</div>
+                            </div>
+                            
+                            <!-- Row 5 -->
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">29</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">30</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color);">
+                                <div class="day-number">31</div>
+                            </div>
+                            
+                            <!-- Next month days (June) -->
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); color: #ccc;">
+                                <div class="day-number">1</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); color: #ccc;">
+                                <div class="day-number">2</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); color: #ccc;">
+                                <div class="day-number">3</div>
+                            </div>
+                            <div style="padding: 10px; border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); color: #ccc;">
+                                <div class="day-number">4</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="calendar-legend" style="margin-top: 15px; display: flex; gap: 20px;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <span style="display: inline-block; width: 15px; height: 15px; background-color: #e9f5fe; border-radius: 3px;"></span>
+                            <span>Test Drive</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <span style="display: inline-block; width: 15px; height: 15px; background-color: #f8f9fa; border-radius: 3px;"></span>
+                            <span>Weekend</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Create Appointment Tab -->
+                <div class="tab-content" id="create-tab" style="display: none;">
+                    <form class="admin-form">
+                        <h2>Schedule Test Drive</h2>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="customer-type">Customer Type *</label>
+                                <select id="customer-type" name="customer_type" required>
+                                    <option value="">Select Type</option>
+                                    <option value="existing">Existing Customer</option>
+                                    <option value="new">New Customer</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="existing-customer">Select Customer</label>
+                                <select id="existing-customer" name="customer_id" disabled>
+                                    <option value="">Select Customer Type First</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- New Customer Fields (show/hide based on selection) -->
+                        <div class="new-customer-fields" style="display: none;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="first-name">First Name *</label>
+                                    <input type="text" id="first-name" name="first_name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="last-name">Last Name *</label>
+                                    <input type="text" id="last-name" name="last_name">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="email">Email Address *</label>
+                                    <input type="email" id="email" name="email">
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone">Phone Number *</label>
+                                    <input type="tel" id="phone" name="phone">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Vehicle Selection -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="vehicle">Vehicle *</label>
+                                <select id="vehicle" name="vehicle_id" required>
+                                    <option value="">Select Vehicle</option>
+                                    <option value="1">2024 Mercedes-Benz S580 4MATIC (VH-2480)</option>
+                                    <option value="2">2023 BMW X7 M50i (VH-2325)</option>
+                                    <option value="3">2023 Porsche Taycan Turbo S (VH-2324)</option>
+                                    <option value="4">2024 Audi RS7 Sportback (VH-2412)</option>
+                                    <option value="5">2022 Lexus LC 500 Convertible (VH-2256)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Date & Time Selection -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="test-date">Test Drive Date *</label>
+                                <input type="date" id="test-date" name="test_date" min="2025-05-02" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="test-time">Time Slot *</label>
+                                <select id="test-time" name="test_time" required>
+                                    <option value="">Select Time</option>
+                                    <option value="09:00:00">9:00 AM</option>
+                                    <option value="10:00:00">10:00 AM</option>
+                                    <option value="11:00:00">11:00 AM</option>
+                                    <option value="12:00:00">12:00 PM</option>
+                                    <option value="13:00:00">1:00 PM</option>
+                                    <option value="14:00:00">2:00 PM</option>
+                                    <option value="15:00:00">3:00 PM</option>
+                                    <option value="16:00:00">4:00 PM</option>
+                                    <option value="17:00:00">5:00 PM</option>
+                                    <option value="18:00:00">6:00 PM</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="sales-associate">Sales Associate *</label>
+                                <select id="sales-associate" name="sales_associate_id" required>
+                                    <option value="">Select Associate</option>
+                                    <option value="1">Alexandra Chen</option>
+                                    <option value="2">Michael Rodriguez</option>
+                                    <option value="3">Jennifer Williams</option>
+                                    <option value="4">David Parker</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Notes -->
+                        <div class="form-group">
+                            <label for="notes">Additional Notes</label>
+                            <textarea id="notes" name="notes" rows="4" placeholder="Enter any additional information or special requests..."></textarea>
+                        </div>
+                        
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <button type="reset" class="btn-outline">Reset</button>
+                            <button type="submit" class="btn-primary">Schedule Test Drive</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Test Drive Details Modal (Hidden by default) -->
+            <div id="test-drive-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 1000;">
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: white; border-radius: var(--border-radius); padding: 2rem; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; box-shadow: var(--box-shadow);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+                        <h2 style="margin: 0;">Test Drive Details</h2>
+                        <button class="btn-icon" id="close-test-drive-modal" style="width: 30px; height: 30px;"><i class="fas fa-times"></i></button>
+                    </div>
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                            <div style="flex: 1;">
+                                <h3 style="margin-top: 0;">Customer Information</h3>
+                                <p><strong>Name:</strong> Robert Johnson</p>
+                                <p><strong>Email:</strong> r.johnson@example.com</p>
+                                <p><strong>Phone:</strong> (555) 123-4567</p>
+                            </div>
+                            <div style="flex: 1;">
+                                <h3 style="margin-top: 0;">Appointment Details</h3>
+                                <p><strong>Date:</strong> May 3, 2025</p>
+                                <p><strong>Time:</strong> 10:00 AM</p>
+                                <p><strong>Sales Associate:</strong> Alexandra Chen</p>
+                                <p><strong>Status:</strong> <span class="status status-pending">Scheduled</span></p>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3>Vehicle Information</h3>
+                            <div style="display: flex; align-items: center; background-color: var(--bg-light); padding: 1rem; border-radius: var(--border-radius);">
+                                <div style="width: 80px; height: 60px; overflow: hidden; border-radius: 4px; margin-right: 1rem;">
+                                    <img src="/api/placeholder/80/60" alt="Mercedes-Benz S580" style="width: 100%; height: 100%; object-fit: cover;">
+                                </div>
+                                <div>
+                                    <p style="font-weight: 600; margin: 0 0 0.25rem;">2024 Mercedes-Benz S580 4MATIC</p>
+                                    <p style="margin: 0; color: var(--secondary-color); font-weight: 600;">$135,900</p>
+                                    <p style="margin: 0; font-size: 0.9rem; color: var(--text-light);">Stock #: VH-2480</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3>Notes</h3>
+                            <div style="background-color: var(--bg-light); padding: 1rem; border-radius: var(--border-radius);">
+                                <p>Customer is very interested in the S580 and has specific questions about the self-driving capabilities and the premium sound system. Mentioned they're considering between this and the BMW 7 Series.</p>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <h3>Test Drive Feedback</h3>
+                            <textarea style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: var(--border-radius); min-height: 120px; font-family: inherit; resize: vertical;" placeholder="Enter feedback after the test drive is completed..."></textarea>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button class="btn-outline" style="margin-right: 0.5rem;">Reschedule</button>
+                            <button class="btn-secondary" style="margin-right: 0.5rem;">Cancel Test Drive</button>
+                            <button class="btn-primary">Mark as Completed</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

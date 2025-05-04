@@ -1,14 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import '../styles.css';
-import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, addDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, addDoc, getDoc, setDoc } from 'firebase/firestore';
 import { app } from '../../../src/firebase';
 
 const db = getFirestore(app);
+
+const DEFAULT_BUSINESS_HOURS = {
+  monday: { open: '09:00', close: '18:00', isOpen: true },
+  tuesday: { open: '09:00', close: '18:00', isOpen: true },
+  wednesday: { open: '09:00', close: '18:00', isOpen: true },
+  thursday: { open: '09:00', close: '18:00', isOpen: true },
+  friday: { open: '09:00', close: '18:00', isOpen: true },
+  saturday: { open: '10:00', close: '16:00', isOpen: true },
+  sunday: { open: '00:00', close: '00:00', isOpen: false },
+};
+
+const DAYS_OF_WEEK = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
 const TestDrives = () => {
   const [activeTab, setActiveTab] = useState('appointments');
   const [drives, setDrives] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [businessHours, setBusinessHours] = useState(DEFAULT_BUSINESS_HOURS);
+  const [blockedDates, setBlockedDates] = useState([]);
+  const [newBlockDate, setNewBlockDate] = useState('');
+  const [availableTimeSlots, setAvailableTimeSlots] = useState([]);
+  const [settingsSaved, setSettingsSaved] = useState(false);
 
   // form state
   const [customerType, setCustomerType] = useState('existing');
@@ -43,6 +60,78 @@ const TestDrives = () => {
     fetchData();
   }, []);
 
+  // Fetch business hours and blocked dates
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const hoursDoc = await getDoc(doc(db, 'settings', 'businessHours'));
+        if (hoursDoc.exists()) {
+          setBusinessHours(hoursDoc.data());
+        } else {
+          // Initialize default settings if none exist
+          await setDoc(doc(db, 'settings', 'businessHours'), DEFAULT_BUSINESS_HOURS);
+        }
+        
+        const blockedDatesDoc = await getDoc(doc(db, 'settings', 'blockedDates'));
+        if (blockedDatesDoc.exists()) {
+          setBlockedDates(blockedDatesDoc.data().dates || []);
+        } else {
+          await setDoc(doc(db, 'settings', 'blockedDates'), { dates: [] });
+        }
+      } catch (error) {
+        console.error("Error fetching business hours settings:", error);
+      }
+    };
+    
+    fetchSettings();
+  }, []);
+
+  // Generate available time slots based on the selected date
+  useEffect(() => {
+    if (!testDate) {
+      setAvailableTimeSlots([]);
+      return;
+    }
+    
+    // Check if date is blocked
+    if (blockedDates.includes(testDate)) {
+      setAvailableTimeSlots([]);
+      return;
+    }
+    
+    const date = new Date(testDate);
+    const dayOfWeek = DAYS_OF_WEEK[date.getDay()];
+    const daySettings = businessHours[dayOfWeek];
+    
+    // If the day is closed, no slots available
+    if (!daySettings.isOpen) {
+      setAvailableTimeSlots([]);
+      return;
+    }
+    
+    // Generate time slots in 1-hour intervals
+    const slots = [];
+    const [openHour, openMinute] = daySettings.open.split(':').map(Number);
+    const [closeHour, closeMinute] = daySettings.close.split(':').map(Number);
+    
+    let currentHour = openHour;
+    let currentMinute = openMinute;
+    
+    while (
+      currentHour < closeHour || 
+      (currentHour === closeHour && currentMinute < closeMinute)
+    ) {
+      const formattedHour = currentHour.toString().padStart(2, '0');
+      const formattedMinute = currentMinute.toString().padStart(2, '0');
+      slots.push(`${formattedHour}:${formattedMinute}`);
+      
+      // Increment by 1 hour
+      currentHour++;
+    }
+    
+    setAvailableTimeSlots(slots);
+  }, [testDate, businessHours, blockedDates]);
+
   const handleDelete = async id => {
     if (!window.confirm('Cancel this test drive?')) return;
     await deleteDoc(doc(db, 'test_drives', id));
@@ -53,6 +142,58 @@ const TestDrives = () => {
     const ref = doc(db, 'test_drives', id);
     await updateDoc(ref, { status: 'completed' });
     setDrives(prev => prev.map(d => d.id === id ? { ...d, status: 'completed' } : d));
+  };
+
+  // Save business hours settings
+  const saveBusinessHours = async () => {
+    try {
+      await setDoc(doc(db, 'settings', 'businessHours'), businessHours);
+      setSettingsSaved(true);
+      setTimeout(() => setSettingsSaved(false), 3000);
+    } catch (error) {
+      console.error("Error saving business hours:", error);
+      alert("Failed to save business hours settings");
+    }
+  };
+
+  // Update a specific day's business hours
+  const updateDayHours = (day, field, value) => {
+    setBusinessHours(prev => ({
+      ...prev,
+      [day]: {
+        ...prev[day],
+        [field]: value
+      }
+    }));
+  };
+
+  // Add a blocked date
+  const addBlockedDate = async () => {
+    if (!newBlockDate || blockedDates.includes(newBlockDate)) {
+      return;
+    }
+    
+    const updatedBlockedDates = [...blockedDates, newBlockDate];
+    try {
+      await setDoc(doc(db, 'settings', 'blockedDates'), { dates: updatedBlockedDates });
+      setBlockedDates(updatedBlockedDates);
+      setNewBlockDate('');
+    } catch (error) {
+      console.error("Error adding blocked date:", error);
+      alert("Failed to add blocked date");
+    }
+  };
+
+  // Remove a blocked date
+  const removeBlockedDate = async (dateToRemove) => {
+    const updatedBlockedDates = blockedDates.filter(date => date !== dateToRemove);
+    try {
+      await setDoc(doc(db, 'settings', 'blockedDates'), { dates: updatedBlockedDates });
+      setBlockedDates(updatedBlockedDates);
+    } catch (error) {
+      console.error("Error removing blocked date:", error);
+      alert("Failed to remove blocked date");
+    }
   };
 
   // handle form submission
@@ -120,6 +261,7 @@ const TestDrives = () => {
           <button className={activeTab === 'appointments' ? 'active' : ''} onClick={() => setActiveTab('appointments')}>Appointments</button>
           <button className={activeTab === 'calendar' ? 'active' : ''} onClick={() => setActiveTab('calendar')}>Calendar View</button>
           <button className={activeTab === 'create' ? 'active' : ''} onClick={() => setActiveTab('create')}>Create Appointment</button>
+          <button className={activeTab === 'settings' ? 'active' : ''} onClick={() => setActiveTab('settings')}>Schedule Settings</button>
         </div>
 
         {activeTab === 'appointments' && (
@@ -227,7 +369,7 @@ const TestDrives = () => {
                   <label>Time Slot *</label>
                   <select value={testTime} onChange={e => setTestTime(e.target.value)} required>
                     <option value="">Select Time</option>
-                    {['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00'].map(t=><option key={t} value={`${t}:00`}>{t.replace(':00','')} {t<'12:00'?'AM':'PM'}</option>)}
+                    {availableTimeSlots.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
                 <div className="form-group">
@@ -250,6 +392,69 @@ const TestDrives = () => {
                 <button type="submit" className="btn-primary">Schedule Test Drive</button>
               </div>
             </form>
+          </div>
+        )}
+
+        {activeTab === 'settings' && (
+          <div className="tab-content">
+            <h2>Schedule Settings</h2>
+            <div className="settings-section">
+              <h3>Business Hours</h3>
+              {DAYS_OF_WEEK.map(day => (
+                <div key={day} className="form-row">
+                  <div className="form-group">
+                    <label>{day.charAt(0).toUpperCase() + day.slice(1)} Open</label>
+                    <input
+                      type="time"
+                      value={businessHours[day].open}
+                      onChange={e => updateDayHours(day, 'open', e.target.value)}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>{day.charAt(0).toUpperCase() + day.slice(1)} Close</label>
+                    <input
+                      type="time"
+                      value={businessHours[day].close}
+                      onChange={e => updateDayHours(day, 'close', e.target.value)}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>{day.charAt(0).toUpperCase() + day.slice(1)} Open?</label>
+                    <input
+                      type="checkbox"
+                      checked={businessHours[day].isOpen}
+                      onChange={e => updateDayHours(day, 'isOpen', e.target.checked)}
+                    />
+                  </div>
+                </div>
+              ))}
+              <button className="btn-primary" onClick={saveBusinessHours}>Save Business Hours</button>
+              {settingsSaved && <p>Settings saved successfully!</p>}
+            </div>
+            <div className="settings-section">
+              <h3>Blocked Dates</h3>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Add Blocked Date</label>
+                  <input
+                    type="date"
+                    value={newBlockDate}
+                    onChange={e => setNewBlockDate(e.target.value)}
+                  />
+                </div>
+                <button className="btn-primary" onClick={addBlockedDate}>Add</button>
+              </div>
+              <ul>
+                {blockedDates.map(date => (
+                  <li key={date}>
+                    {date}
+                    <button className="btn-icon delete" onClick={() => removeBlockedDate(date)} title="Remove">
+                      <i className="fas fa-trash-alt" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         )}
       </section>

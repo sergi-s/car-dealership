@@ -33,6 +33,20 @@ const Inquiries = () => {
     setInquiries(prev => prev.map(i => i.id === id ? { ...i, status: 'responded' } : i));
   };
 
+  // Calculate stats counts
+  const totalInquiries = inquiries.length;
+  const respondedInquiries = inquiries.filter(i => i.status === 'responded').length;
+  const pendingInquiries = totalInquiries - respondedInquiries;
+
+  // Calculate today's inquiries
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todaysInquiries = inquiries.filter(i => {
+    const inquiryDate = new Date(i.date);
+    inquiryDate.setHours(0, 0, 0, 0);
+    return inquiryDate.getTime() === today.getTime();
+  }).length;
+
   if (loading) return <p>Loading...</p>;
 
   return (
@@ -53,19 +67,19 @@ const Inquiries = () => {
       <section className="dashboard-stats" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
         <div className="stat-card">
           <div className="stat-icon"><i className="fas fa-envelope"></i></div>
-          <div className="stat-info"><h3>48</h3><p>Total Inquiries</p></div>
+          <div className="stat-info"><h3>{totalInquiries}</h3><p>Total Inquiries</p></div>
         </div>
         <div className="stat-card">
           <div className="stat-icon"><i className="fas fa-envelope-open"></i></div>
-          <div className="stat-info"><h3>30</h3><p>Responded</p></div>
+          <div className="stat-info"><h3>{respondedInquiries}</h3><p>Responded</p></div>
         </div>
         <div className="stat-card">
           <div className="stat-icon"><i className="fas fa-clock"></i></div>
-          <div className="stat-info"><h3>18</h3><p>Pending</p></div>
+          <div className="stat-info"><h3>{pendingInquiries}</h3><p>Pending</p></div>
         </div>
         <div className="stat-card">
           <div className="stat-icon"><i className="fas fa-chart-line"></i></div>
-          <div className="stat-info"><h3>12</h3><p>Today&apos;s Inquiries</p></div>
+          <div className="stat-info"><h3>{todaysInquiries}</h3><p>Today's Inquiries</p></div>
         </div>
       </section>
 

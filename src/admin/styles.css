@@ -1075,6 +1075,33 @@ input[type="range"]::-webkit-slider-thumb {
   text-align: center;
 }
 
+/* Logout button styling */
+.logout-button {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  transition: var(--transition);
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.logout-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.logout-button i {
+  margin-right: 0.75rem;
+  width: 20px;
+  text-align: center;
+}
+
 .admin-content {
   padding: 1.5rem 2rem;
   background-color: var(--bg-light);

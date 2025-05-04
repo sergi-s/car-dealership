@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import InventoryPage from './pages/InventoryPage';
 import AboutPage from './pages/AboutPage';
+import SchedulePage from './pages/SchedulePage';
 import AdminLayout from './admin/AdminLayout';
 import RequireAuth from './admin/RequireAuth';
 import LoginPage from './admin/pages/Login';
@@ -21,6 +22,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/inventory" element={<InventoryPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/schedule" element={<SchedulePage />} />
         {/* Add more routes as needed */}
         <Route path="/admin/login" element={<LoginPage />} />
         <Route element={<RequireAuth><AdminLayout /></RequireAuth>}>

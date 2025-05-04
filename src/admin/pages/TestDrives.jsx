@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../styles.css';
-import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, addDoc } from 'firebase/firestore';
 import { app } from '../../../src/firebase';
 
 const db = getFirestore(app);
@@ -10,6 +10,18 @@ const TestDrives = () => {
   const [drives, setDrives] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // form state
+  const [customerType, setCustomerType] = useState('existing');
+  const [customers, setCustomers] = useState([]);
+  const [existingCustomer, setExistingCustomer] = useState('');
+  const [newCustomer, setNewCustomer] = useState({ firstName: '', lastName: '', email: '', phone: '' });
+  const [vehiclesList, setVehiclesList] = useState([]);
+  const [vehicleId, setVehicleId] = useState('');
+  const [testDate, setTestDate] = useState('');
+  const [testTime, setTestTime] = useState('');
+  const [salesAssociate, setSalesAssociate] = useState('');
+  const [notes, setNotes] = useState('');
+
   useEffect(() => {
     const fetchDrives = async () => {
       const q = collection(db, 'test_drives');
@@ -18,6 +30,17 @@ const TestDrives = () => {
       setLoading(false);
     };
     fetchDrives();
+  }, []);
+
+  // fetch customers and vehicles
+  useEffect(() => {
+    const fetchData = async () => {
+      const custSnap = await getDocs(collection(db, 'customers'));
+      setCustomers(custSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+      const vehSnap = await getDocs(collection(db, 'vehicles'));
+      setVehiclesList(vehSnap.docs.map(d => ({ id: d.id, title: d.data().title || `${d.data().year} ${d.data().make} ${d.data().model}` })));
+    };
+    fetchData();
   }, []);
 
   const handleDelete = async id => {
@@ -30,6 +53,32 @@ const TestDrives = () => {
     const ref = doc(db, 'test_drives', id);
     await updateDoc(ref, { status: 'completed' });
     setDrives(prev => prev.map(d => d.id === id ? { ...d, status: 'completed' } : d));
+  };
+
+  // handle form submission
+  const handleCreateDrive = async e => {
+    e.preventDefault();
+    let customer = {};
+    if (customerType === 'existing') {
+      const sel = customers.find(c => c.id === existingCustomer);
+      customer = { name: sel ? `${sel.firstName} ${sel.lastName}` : '', email: sel?.email || '', phone: sel?.phone || '' };
+    } else {
+      customer = { name: `${newCustomer.firstName} ${newCustomer.lastName}`, email: newCustomer.email, phone: newCustomer.phone };
+    }
+    const selectedVehicle = vehiclesList.find(v => v.id === vehicleId);
+    const dateTime = new Date(`${testDate}T${testTime}`);
+    const data = { customerName: customer.name, customerEmail: customer.email, customerPhone: customer.phone, vehicleModel: selectedVehicle?.title || '', vehicleId, date: dateTime, salesAssociate, status: 'scheduled', notes };
+    const docRef = await addDoc(collection(db, 'test_drives'), data);
+    setDrives(prev => [...prev, { id: docRef.id, ...data }]);
+    setActiveTab('appointments');
+    // reset form
+    setExistingCustomer('');
+    setNewCustomer({ firstName: '', lastName: '', email: '', phone: '' });
+    setVehicleId('');
+    setTestDate('');
+    setTestTime('');
+    setSalesAssociate('');
+    setNotes('');
   };
 
   return (
@@ -119,7 +168,88 @@ const TestDrives = () => {
 
         {activeTab === 'create' && (
           <div className="tab-content">
-            {/* TODO: implement create appointment form */}
+            <form onSubmit={handleCreateDrive} className="admin-form">
+              <h2>Schedule Test Drive</h2>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Customer Type *</label>
+                  <select value={customerType} onChange={e => setCustomerType(e.target.value)} required>
+                    <option value="existing">Existing Customer</option>
+                    <option value="new">New Customer</option>
+                  </select>
+                </div>
+                {customerType === 'existing' ? (
+                  <div className="form-group">
+                    <label>Select Customer</label>
+                    <select value={existingCustomer} onChange={e => setExistingCustomer(e.target.value)} required>
+                      <option value="">Select Customer</option>
+                      {customers.map(c => <option key={c.id} value={c.id}>{c.firstName} {c.lastName}</option>)}
+                    </select>
+                  </div>
+                ) : (
+                  <div className="new-customer-fields">
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>First Name *</label>
+                        <input type="text" value={newCustomer.firstName} onChange={e => setNewCustomer(prev => ({ ...prev, firstName: e.target.value }))} required />
+                      </div>
+                      <div className="form-group">
+                        <label>Last Name *</label>
+                        <input type="text" value={newCustomer.lastName} onChange={e => setNewCustomer(prev => ({ ...prev, lastName: e.target.value }))} required />
+                      </div>
+                    </div>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Email Address *</label>
+                        <input type="email" value={newCustomer.email} onChange={e => setNewCustomer(prev => ({ ...prev, email: e.target.value }))} required />
+                      </div>
+                      <div className="form-group">
+                        <label>Phone Number *</label>
+                        <input type="tel" value={newCustomer.phone} onChange={e => setNewCustomer(prev => ({ ...prev, phone: e.target.value }))} required />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="form-group">
+                <label>Vehicle *</label>
+                <select value={vehicleId} onChange={e => setVehicleId(e.target.value)} required>
+                  <option value="">Select Vehicle</option>
+                  {vehiclesList.map(v => <option key={v.id} value={v.id}>{v.title}</option>)}
+                </select>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Date *</label>
+                  <input type="date" value={testDate} onChange={e => setTestDate(e.target.value)} min={new Date().toISOString().split('T')[0]} required />
+                </div>
+                <div className="form-group">
+                  <label>Time Slot *</label>
+                  <select value={testTime} onChange={e => setTestTime(e.target.value)} required>
+                    <option value="">Select Time</option>
+                    {['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00'].map(t=><option key={t} value={`${t}:00`}>{t.replace(':00','')} {t<'12:00'?'AM':'PM'}</option>)}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Sales Associate *</label>
+                  <select value={salesAssociate} onChange={e => setSalesAssociate(e.target.value)} required>
+                    <option value="">Select Associate</option>
+                    <option>Alexandra Chen</option>
+                    <option>Michael Rodriguez</option>
+                    <option>Jennifer Williams</option>
+                    <option>David Parker</option>
+                  </select>
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Additional Notes</label>
+                <textarea value={notes} onChange={e => setNotes(e.target.value)} rows="4" />
+              </div>
+              <div className="form-actions">
+                <button type="reset" className="btn-outline" onClick={() => { setExistingCustomer(''); setNewCustomer({ firstName: '', lastName: '', email: '', phone: '' }); }}>Reset</button>
+                <button type="submit" className="btn-primary">Schedule Test Drive</button>
+              </div>
+            </form>
           </div>
         )}
       </section>

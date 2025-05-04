@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import '../styles.css';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence, signOut } from 'firebase/auth';
 import { app } from '../../firebase';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import '../../styles/styles.css';
+import bcrypt from 'bcryptjs';
+import '../styles.css';
+
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -12,27 +14,58 @@ const Login = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Check if user is already logged in
+    const adminSession = localStorage.getItem('adminSession') || sessionStorage.getItem('adminSession');
+    if (adminSession) {
+      navigate('/admin/dashboard');
+    }
+  }, [navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    setError('');
+    
     try {
-      // Set persistence based on 'Remember me' checkbox
-      await setPersistence(
-        auth,
-        remember ? browserLocalPersistence : browserSessionPersistence
-      );
-      // Sign in and verify admin privileges
-      const userCredential = await signInWithEmailAndPassword(auth, username, password);
-      const user = userCredential.user;
-      // Verify user is in admins collection (read-only)
-      const adminSnap = await getDoc(doc(db, 'admins', user.uid));
-      if (!adminSnap.exists()) {
-        await signOut(auth);
-        throw new Error('Access denied: not an admin');
+      const db = getFirestore(app);
+      
+      // Find the admin with the provided username
+      const adminsRef = collection(db, 'admins');
+      const q = query(adminsRef, where("username", "==", username));
+      const querySnapshot = await getDocs(q);
+      
+      if (querySnapshot.empty) {
+        throw new Error('Invalid username or password');
       }
+      
+      // Get the admin document
+      const adminDoc = querySnapshot.docs[0];
+      const adminData = adminDoc.data();
+      
+      // Verify password using bcrypt
+      const passwordMatch = await bcrypt.compare(password, adminData.passwordHash);
+      
+      if (!passwordMatch) {
+        throw new Error('Invalid username or password');
+      }
+      
+      // Create admin session
+      const adminSession = {
+        id: adminDoc.id,
+        username: adminData.username,
+        timestamp: new Date().getTime()
+      };
+      
+      // Store in local or session storage based on remember preference
+      if (remember) {
+        localStorage.setItem('adminSession', JSON.stringify(adminSession));
+      } else {
+        sessionStorage.setItem('adminSession', JSON.stringify(adminSession));
+      }
+      
       navigate('/admin/dashboard');
     } catch (err) {
+      console.error('Login error:', err);
       setError(err.message);
     }
   };

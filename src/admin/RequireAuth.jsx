@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { app } from '../firebase';
 
 const RequireAuth = ({ children }) => {
   const [loading, setLoading] = useState(true);
@@ -9,12 +7,41 @@ const RequireAuth = ({ children }) => {
   const location = useLocation();
 
   useEffect(() => {
-    const auth = getAuth(app);
-    const unsubscribe = onAuthStateChanged(auth, user => {
-      setAuthed(!!user);
-      setLoading(false);
-    });
-    return unsubscribe;
+    // Check for admin session in local or session storage
+    const adminSession = localStorage.getItem('adminSession') || sessionStorage.getItem('adminSession');
+    
+    if (adminSession) {
+      try {
+        // Parse the session data
+        const session = JSON.parse(adminSession);
+        
+        // Check if session is valid (you could add more validation here)
+        if (session && session.username && session.timestamp) {
+          // Optionally implement session expiry check
+          const currentTime = new Date().getTime();
+          const sessionTime = session.timestamp;
+          const sessionMaxAge = 24 * 60 * 60 * 1000; // 24 hours
+          
+          if (currentTime - sessionTime < sessionMaxAge) {
+            setAuthed(true);
+          } else {
+            // Session expired
+            localStorage.removeItem('adminSession');
+            sessionStorage.removeItem('adminSession');
+            setAuthed(false);
+          }
+        } else {
+          setAuthed(false);
+        }
+      } catch (error) {
+        console.error("Error reading admin session:", error);
+        setAuthed(false);
+      }
+    } else {
+      setAuthed(false);
+    }
+    
+    setLoading(false);
   }, []);
 
   if (loading) {

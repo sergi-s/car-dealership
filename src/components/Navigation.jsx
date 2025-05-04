@@ -16,6 +16,9 @@ const Navigation = () => {
         <li className={location.pathname === '/about' ? 'active' : ''}>
           <Link to="/about">About Us</Link>
         </li>
+        <li className={location.pathname === '/schedule' ? 'active' : ''}>
+          <Link to="/schedule">Schedule Test Drive</Link>
+        </li>
         <li>
           <Link to="/admin/login" className="admin-link">Admin</Link>
         </li>

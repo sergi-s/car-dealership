@@ -1,12 +1,29 @@
 // InventoryFilterPanel.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import FilterGroup from './FilterGroup';
 import RangeSlider from './RangeSlider';
 import ColorOptions from './ColorOptions';
+import { vehicleService } from '../services/vehicleService';
+
+// Helper to convert option values into labels
+const formatLabel = val => val.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
 const InventoryFilterPanel = ({ onFilterChange }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeFilters, setActiveFilters] = useState([]);
+  const [currentFilters, setCurrentFilters] = useState({});
+  const [filterCounts, setFilterCounts] = useState({});
+
+  useEffect(() => {
+    const loadCounts = async () => {
+      const counts = await vehicleService.getFilterCounts([
+        'body_type', 'make', 'fuel', 'transmission', 'drivetrain',
+        'certified', 'new', 'special'
+      ], currentFilters);
+      setFilterCounts(counts);
+    };
+    loadCounts();
+  }, [currentFilters]);
 
   const togglePanel = () => {
     setIsExpanded(!isExpanded);
@@ -26,11 +43,13 @@ const InventoryFilterPanel = ({ onFilterChange }) => {
       }
     }
     setActiveFilters(Object.keys(newFilters));
+    setCurrentFilters(newFilters);
     onFilterChange(newFilters);
   };
 
   const handleFormReset = () => {
     setActiveFilters([]);
+    setCurrentFilters({});
     onFilterChange({});
   };
 
@@ -47,25 +66,25 @@ const InventoryFilterPanel = ({ onFilterChange }) => {
           <form className="filter-form" onSubmit={handleFormSubmit}>
             <FilterGroup
               title="Vehicle Type"
-              options={[
-                { value: 'sedan', label: 'Sedan', count: 42 },
-                { value: 'suv', label: 'SUV', count: 36 },
-                { value: 'coupe', label: 'Coupe', count: 24 },
-                { value: 'convertible', label: 'Convertible', count: 18 },
-                { value: 'truck', label: 'Truck', count: 12 }
-              ]}
+              options={
+                Object.entries(filterCounts.body_type || {}).map(([value, count]) => ({
+                  value,
+                  label: formatLabel(value),
+                  count
+                }))
+              }
               name="body_type"
             />
 
             <FilterGroup
               title="Make"
-              options={[
-                { value: 'audi', label: 'Audi', count: 28 },
-                { value: 'bmw', label: 'BMW', count: 32 },
-                { value: 'mercedes', label: 'Mercedes-Benz', count: 30 },
-                { value: 'porsche', label: 'Porsche', count: 18 },
-                { value: 'lexus', label: 'Lexus', count: 24 }
-              ]}
+              options={
+                Object.entries(filterCounts.make || {}).map(([value, count]) => ({
+                  value,
+                  label: formatLabel(value),
+                  count
+                }))
+              }
               name="make"
               showMoreButton={true}
             />
@@ -110,32 +129,37 @@ const InventoryFilterPanel = ({ onFilterChange }) => {
 
             <FilterGroup
               title="Fuel Type"
-              options={[
-                { value: 'gasoline', label: 'Gasoline', count: 68 },
-                { value: 'diesel', label: 'Diesel', count: 24 },
-                { value: 'hybrid', label: 'Hybrid', count: 18 },
-                { value: 'electric', label: 'Electric', count: 12 }
-              ]}
+              options={
+                Object.entries(filterCounts.fuel || {}).map(([value, count]) => ({
+                  value,
+                  label: formatLabel(value),
+                  count
+                }))
+              }
               name="fuel"
             />
 
             <FilterGroup
               title="Transmission"
-              options={[
-                { value: 'automatic', label: 'Automatic', count: 98 },
-                { value: 'manual', label: 'Manual', count: 24 }
-              ]}
+              options={
+                Object.entries(filterCounts.transmission || {}).map(([value, count]) => ({
+                  value,
+                  label: formatLabel(value),
+                  count
+                }))
+              }
               name="transmission"
             />
 
             <FilterGroup
               title="Drive Train"
-              options={[
-                { value: 'awd', label: 'AWD', count: 42 },
-                { value: 'fwd', label: 'FWD', count: 28 },
-                { value: 'rwd', label: 'RWD', count: 54 },
-                { value: '4wd', label: '4WD', count: 8 }
-              ]}
+              options={
+                Object.entries(filterCounts.drivetrain || {}).map(([value, count]) => ({
+                  value,
+                  label: formatLabel(value),
+                  count
+                }))
+              }
               name="drivetrain"
             />
 
@@ -154,15 +178,28 @@ const InventoryFilterPanel = ({ onFilterChange }) => {
               name="exterior_color"
             />
 
-            <FilterGroup
-              title="Other"
-              options={[
-                { value: 'true', label: 'Certified Pre-Owned', count: 45, name: 'certified' },
-                { value: 'true', label: 'New Arrivals', count: 28, name: 'new' },
-                { value: 'true', label: 'Special Offers', count: 15, name: 'special' }
-              ]}
-              useIndividualNames={true}
-            />
+            {/* Other filters (boolean flags) */}
+            {
+              (() => {
+                const otherDefs = [
+                  { name: 'certified', label: 'Certified Pre-Owned' },
+                  { name: 'new', label: 'New Arrivals' },
+                  { name: 'special', label: 'Special Offers' }
+                ];
+                return (
+                  <FilterGroup
+                    title="Other"
+                    options={otherDefs.map(({ name, label }) => ({
+                      value: 'true',
+                      label,
+                      count: filterCounts[name]?.[true] || 0,
+                      name
+                    }))}
+                    useIndividualNames={true}
+                  />
+                );
+              })()
+            }
 
             <div className="filter-actions">
               <button type="submit" className="btn-primary">Apply Filters</button>

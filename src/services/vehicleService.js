@@ -1,4 +1,4 @@
-import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, updateDoc, deleteDoc, doc, getDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, query, where, orderBy, limit, addDoc, updateDoc, deleteDoc, doc, getDoc, getCountFromServer } from 'firebase/firestore';
 import { app } from '../firebase';
 
 const db = getFirestore(app);
@@ -161,5 +161,62 @@ export const vehicleService = {
   async deleteVehicle(id) {
     const ref = doc(db, 'vehicles', id);
     await deleteDoc(ref);
+  },
+
+  /**
+   * Get count of vehicles matching filters
+   * @param {Object} filters
+   * @returns {Promise<number>}
+   */
+  async getCount(filters = {}) {
+    try {
+      let q = query(vehiclesCollection);
+      for (const [field, value] of Object.entries(filters)) {
+        q = query(q, where(field, '==', value));
+      }
+      const snapshot = await getCountFromServer(q);
+      return snapshot.data().count;
+    } catch (error) {
+      console.error('[getCount] Error occurred:', error);
+      return 0;
+    }
+  },
+
+  /**
+   * Get counts for distinct filter fields present in the collection,
+   * optionally filtered by active filters (excluding the field being counted)
+   * @param {string[]} filterNames
+   * @param {Object} appliedFilters
+   * @returns {Promise<Object>}
+   */
+  async getFilterCounts(filterNames = [], appliedFilters = {}) {
+    try {
+      const snapshot = await getDocs(vehiclesCollection);
+      const counts = {};
+      snapshot.docs.forEach(docSnap => {
+        const data = docSnap.data();
+        filterNames.forEach(name => {
+          // Check other active filters (excluding current field)
+          const matches = Object.entries(appliedFilters).every(([f, v]) => {
+            if (f === name) return true;
+            const fieldVal = data[f];
+            if (Array.isArray(v)) {
+              return v.includes(fieldVal);
+            }
+            return fieldVal === v;
+          });
+          if (!matches) return;
+          const val = data[name];
+          if (val != null) {
+            counts[name] = counts[name] || {};
+            counts[name][val] = (counts[name][val] || 0) + 1;
+          }
+        });
+      });
+      return counts;
+    } catch (error) {
+      console.error('[getFilterCounts] Error occurred:', error);
+      return {};
+    }
   }
 };

@@ -4,6 +4,7 @@ import HomePage from './pages/HomePage';
 import InventoryPage from './pages/InventoryPage';
 import AboutPage from './pages/AboutPage';
 import SchedulePage from './pages/SchedulePage';
+import VehicleDetailPage from './pages/VehicleDetailPage';
 import AdminLayout from './admin/AdminLayout';
 import RequireAuth from './admin/RequireAuth';
 import LoginPage from './admin/pages/Login';
@@ -21,6 +22,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/inventory" element={<InventoryPage />} />
+        <Route path="/inventory/:id" element={<VehicleDetailPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/schedule" element={<SchedulePage />} />
         {/* Add more routes as needed */}

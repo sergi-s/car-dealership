@@ -37,7 +37,6 @@ const Inventory = () => {
 
   return (
     <>
-      {/* ...existing header and controls... */}
       <section className="inventory-list">
         <div className="recent-card">
           <div className="card-content">
@@ -79,7 +78,6 @@ const Inventory = () => {
             </table>
           </div>
         </div>
-        {/* ...bulk actions & pagination... */}
       </section>
     </>
   );

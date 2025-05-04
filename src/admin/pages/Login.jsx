@@ -1,70 +1,96 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { app } from '../../firebase';
-import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
-import bcrypt from 'bcryptjs';
-
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { auth, db } from '../../firebase';
+import { signInWithEmailAndPassword, browserLocalPersistence, browserSessionPersistence, setPersistence } from 'firebase/auth';
+import { getDoc, doc } from 'firebase/firestore';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [remember, setRemember] = useState(false);
+  const [remember, setRemember] = useState(true); // Default to remember for better UX
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Get the path user was trying to access before redirect to login
+  const from = location.state?.from?.pathname || '/admin/dashboard';
 
   useEffect(() => {
     // Check if user is already logged in
-    const adminSession = localStorage.getItem('adminSession') || sessionStorage.getItem('adminSession');
-    if (adminSession) {
-      navigate('/admin/dashboard');
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        try {
+          const isAdmin = await checkAdminRole(user.uid);
+          if (isAdmin) {
+            // Store in session that user is admin to reduce DB queries
+            sessionStorage.setItem('isAdmin', 'true');
+            // Navigate to the original destination or dashboard
+            navigate(from, { replace: true });
+          } else {
+            // If logged in but not admin, sign out
+            await auth.signOut();
+            sessionStorage.removeItem('isAdmin');
+            setError('You do not have admin permissions');
+          }
+        } catch (error) {
+          console.error('Auth state check error:', error);
+          setError('Authentication verification failed. Please try again.');
+        }
+      }
+    });
+
+    // Cleanup subscription
+    return () => unsubscribe();
+  }, [navigate, from]);
+
+  // Function to check if the user has admin role
+  const checkAdminRole = async (uid) => {
+    try {
+      const adminRef = doc(db, 'admins', uid);
+      const adminDoc = await getDoc(adminRef);
+      return adminDoc.exists() && adminDoc.data().role === 'admin';
+    } catch (error) {
+      console.error('Error checking admin role:', error);
+      return false;
     }
-  }, [navigate]);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+    setLoading(true);
+
     try {
-      const db = getFirestore(app);
-      
-      // Find the admin with the provided username
-      const adminsRef = collection(db, 'admins');
-      const q = query(adminsRef, where("username", "==", username));
-      const querySnapshot = await getDocs(q);
-      
-      if (querySnapshot.empty) {
-        throw new Error('Invalid username or password');
+      // Set persistence first
+      const persistenceType = remember ? browserLocalPersistence : browserSessionPersistence;
+      await setPersistence(auth, persistenceType);
+
+      // Sign in with Firebase Auth
+      console.log('Attempting login with email:', email);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Check if user is admin
+      const isAdmin = await checkAdminRole(user.uid);
+
+      if (!isAdmin) {
+        // Sign out if not admin
+        await auth.signOut();
+        sessionStorage.removeItem('isAdmin');
+        throw new Error('You do not have admin permissions');
       }
+
+      // Store admin status
+      sessionStorage.setItem('isAdmin', 'true');
       
-      // Get the admin document
-      const adminDoc = querySnapshot.docs[0];
-      const adminData = adminDoc.data();
-      
-      // Verify password using bcrypt
-      const passwordMatch = await bcrypt.compare(password, adminData.passwordHash);
-      
-      if (!passwordMatch) {
-        throw new Error('Invalid username or password');
-      }
-      
-      // Create admin session
-      const adminSession = {
-        id: adminDoc.id,
-        username: adminData.username,
-        timestamp: new Date().getTime()
-      };
-      
-      // Store in local or session storage based on remember preference
-      if (remember) {
-        localStorage.setItem('adminSession', JSON.stringify(adminSession));
-      } else {
-        sessionStorage.setItem('adminSession', JSON.stringify(adminSession));
-      }
-      
-      navigate('/admin/dashboard');
+      // Navigate to the original destination or dashboard
+      navigate(from, { replace: true });
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.message);
+      setError(err.message || 'Invalid login credentials');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -74,18 +100,24 @@ const Login = () => {
         <img src="/api/placeholder/200/80" alt="Premium Motors Logo" />
       </div>
       <h2>Admin Login</h2>
+      {from !== '/admin/dashboard' && (
+        <p className="redirect-notice">
+          Please log in to access <strong>{from}</strong>
+        </p>
+      )}
       <form className="login-form" onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="username">Username</label>
+          <label htmlFor="email">Email</label>
           <div className="input-with-icon">
             <i className="fas fa-user"></i>
             <input
-              type="text"
-              id="username"
-              name="username"
+              type="email"
+              id="email"
+              name="email"
               required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              disabled={loading}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
         </div>
@@ -98,6 +130,7 @@ const Login = () => {
               id="password"
               name="password"
               required
+              disabled={loading}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -113,7 +146,9 @@ const Login = () => {
           />
           <label htmlFor="remember">Remember me</label>
         </div>
-        <button type="submit" className="btn-primary">Log In</button>
+        <button type="submit" className="btn-primary" disabled={loading}>
+          {loading ? 'Logging In...' : 'Log In'}
+        </button>
         {error && <p className="error">{error}</p>}
       </form>
       <div className="login-footer">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getFirestore, collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { app } from '../../firebase';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import '../styles.css';
 
 const db = getFirestore(app);
@@ -65,7 +65,8 @@ const Inventory = () => {
                     <td><span className={`status status-${v.status}`}>{v.status}</span></td>
                     <td>
                       <div className="table-actions">
-                        <NavLink to={`/admin/edit-vehicle/${v.id}`} className="btn-icon edit" title="Edit"><i className="fas fa-edit" /></NavLink>
+                        <Link to={`/admin/inventory/edit/${v.id}`} className="btn-icon view" title="View" target="_blank"><i className="fas fa-eye" /></Link>
+                        <NavLink to={`/admin/inventory/edit/${v.id}`} className="btn-icon edit" title="Edit"><i className="fas fa-edit" /></NavLink>
                         <button className="btn-icon delete" title="Delete" onClick={() => handleDelete(v.id)}><i className="fas fa-trash-alt" /></button>
                         {v.status !== 'sold' && (
                           <button className="btn-icon" title="Mark Sold" onClick={() => handleStatusChange(v.id, 'sold')}><i className="fas fa-check" /></button>

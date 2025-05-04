@@ -2,7 +2,7 @@
 import { Link } from 'react-router-dom';
 import VehicleCard from './VehicleCard';
 import { useState, useEffect } from 'react';
-import { vehicleService } from '../services/vehicleService';
+import vehicleService from '../services/vehicleService';
 
 const FeaturedVehicles = () => {
   const [featuredVehicles, setFeaturedVehicles] = useState([]);

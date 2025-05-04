@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import '../styles.css';
 import { useNavigate } from 'react-router-dom';
 import { uploadImage } from '../../services/imgbbService';
-import { vehicleService } from '../../services/vehicleService';
+import vehicleService from '../../services/vehicleService';
 
 const AddVehicle = () => {
     const [make, setMake] = useState('');

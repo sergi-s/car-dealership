@@ -1,7 +1,7 @@
 // VehicleDetailPage.jsx
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { vehicleService } from '../services/vehicleService';
+import vehicleService from '../services/vehicleService';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import '../styles/vehicleDetail.css';

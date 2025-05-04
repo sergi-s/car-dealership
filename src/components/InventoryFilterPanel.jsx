@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import FilterGroup from './FilterGroup';
 import RangeSlider from './RangeSlider';
 import ColorOptions from './ColorOptions';
-import { vehicleService } from '../services/vehicleService';
+import vehicleService from '../services/vehicleService';
 
 // Helper to convert option values into labels
 const formatLabel = val => val.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
@@ -192,7 +192,7 @@ const InventoryFilterPanel = ({ onFilterChange }) => {
                     options={otherDefs.map(({ name, label }) => ({
                       value: 'true',
                       label,
-                      count: filterCounts[name]?.[true] || 0,
+                      count: filterCounts[name]?.true || 0,
                       name
                     }))}
                     useIndividualNames={true}

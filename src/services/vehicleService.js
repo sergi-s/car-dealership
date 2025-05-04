@@ -4,7 +4,7 @@ import { app } from '../firebase';
 const db = getFirestore(app);
 const vehiclesCollection = collection(db, 'vehicles');
 
-export const vehicleService = {
+const vehicleService = {
   /**
    * Fetch vehicles with optional filtering
    * @param {Object} filters - Filter criteria for vehicles
@@ -220,3 +220,5 @@ export const vehicleService = {
     }
   }
 };
+
+export default vehicleService

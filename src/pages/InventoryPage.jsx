@@ -6,7 +6,7 @@ import Footer from '../components/Footer';
 import PageHero from '../components/PageHero';
 import InventoryFilterPanel from '../components/InventoryFilterPanel';
 import InventoryResults from '../components/InventoryResults';
-import { vehicleService } from '../services/vehicleService';
+import vehicleService from '../services/vehicleService';
 
 const InventoryPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();

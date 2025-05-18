@@ -9,7 +9,7 @@ import '../styles/styles.css';
 const db = getFirestore(app);
 
 // Day of week array matches JS Date.getDay() values
-const DAYS_OF_WEEK = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+const DAYS_OF_WEEK = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
 const SchedulePage = () => {
   const [vehicles, setVehicles] = useState([]);

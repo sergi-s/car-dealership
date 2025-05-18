@@ -5,6 +5,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import PageHero from '../components/PageHero';
 import '../styles/styles.css';
+import { Calendar } from "../components/ui/calendar";
 
 const db = getFirestore(app);
 
@@ -280,7 +281,7 @@ const SchedulePage = () => {
                       <div className="form-row">
                         <div className="form-group">
                           <label htmlFor="date">Test Drive Date *</label>
-                          <input 
+                          {/* <input 
                             type="date" 
                             id="date"
                             name="date" 
@@ -288,7 +289,15 @@ const SchedulePage = () => {
                             min={getFirstAvailableDate()}
                             onChange={handleChange} 
                             required 
+                          /> */}
+                          <Calendar
+                            mode="single"
+                            selected={form.date}
+                            onSelect={handleChange}
+                            className="rounded-md border"
+                            disabled={isDateDisabled}
                           />
+
                           {form.date && isDateDisabled(form.date) && (
                             <p className="form-error">This date is not available for test drives.</p>
                           )}

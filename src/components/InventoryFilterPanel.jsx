@@ -1,12 +1,16 @@
 // InventoryFilterPanel.jsx
-import { useState, useEffect } from 'react';
-import FilterGroup from './FilterGroup';
-import RangeSlider from './RangeSlider';
-import ColorOptions from './ColorOptions';
-import vehicleService from '../services/vehicleService';
+import { useState, useEffect } from "react";
+import FilterGroup from "./FilterGroup";
+import RangeSlider from "./RangeSlider";
+import ColorOptions from "./ColorOptions";
+import vehicleService from "../services/vehicleService";
 
 // Helper to convert option values into labels
-const formatLabel = val => val.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+const formatLabel = (val) =>
+  val
+    .split("_")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
 
 const InventoryFilterPanel = ({ onFilterChange }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -16,10 +20,19 @@ const InventoryFilterPanel = ({ onFilterChange }) => {
 
   useEffect(() => {
     const loadCounts = async () => {
-      const counts = await vehicleService.getFilterCounts([
-        'body_type', 'make', 'fuel', 'transmission', 'drivetrain',
-        'certified', 'new', 'special'
-      ], currentFilters);
+      const counts = await vehicleService.getFilterCounts(
+        [
+          "body_type",
+          "make",
+          "fuel",
+          "transmission",
+          "drivetrain",
+          "certified",
+          "new",
+          "special",
+        ],
+        currentFilters
+      );
       setFilterCounts(counts);
     };
     loadCounts();
@@ -54,37 +67,38 @@ const InventoryFilterPanel = ({ onFilterChange }) => {
   };
 
   return (
-    <section className="inventory-filter">
+    <div>
       <div className="container">
         <div className="filter-toggle">
           <button className="btn-filter-toggle" onClick={togglePanel}>
-            <i className="fas fa-filter"></i> Filters <span className="filter-count">{activeFilters.length}</span>
+            <i className="fas fa-filter"></i> Filters{" "}
+            <span className="filter-count">{activeFilters.length}</span>
           </button>
         </div>
 
-        <div className={`filter-panel ${isExpanded ? 'expanded' : ''}`}>
+        <div className={`filter-panel ${isExpanded ? "expanded" : ""}`}>
           <form className="filter-form" onSubmit={handleFormSubmit}>
             <FilterGroup
               title="Vehicle Type"
-              options={
-                Object.entries(filterCounts.body_type || {}).map(([value, count]) => ({
+              options={Object.entries(filterCounts.body_type || {}).map(
+                ([value, count]) => ({
                   value,
                   label: formatLabel(value),
-                  count
-                }))
-              }
+                  count,
+                })
+              )}
               name="body_type"
             />
 
             <FilterGroup
               title="Make"
-              options={
-                Object.entries(filterCounts.make || {}).map(([value, count]) => ({
+              options={Object.entries(filterCounts.make || {}).map(
+                ([value, count]) => ({
                   value,
                   label: formatLabel(value),
-                  count
-                }))
-              }
+                  count,
+                })
+              )}
               name="make"
               showMoreButton={true}
             />
@@ -103,8 +117,9 @@ const InventoryFilterPanel = ({ onFilterChange }) => {
               max={2025}
               initialMin={2018}
               initialMax={2025}
-              nameMin="minYear" nameMax="maxYear"
-              formatValue={val => val.toString()}
+              nameMin="minYear"
+              nameMax="maxYear"
+              formatValue={(val) => val.toString()}
             />
 
             <RangeSlider
@@ -113,8 +128,13 @@ const InventoryFilterPanel = ({ onFilterChange }) => {
               max={200000}
               initialMin={30000}
               initialMax={150000}
-              nameMin="minPrice" nameMax="maxPrice"
-              formatValue={val => `$${new Intl.NumberFormat().format(val)}${val === 200000 ? '+' : ''}`}
+              nameMin="minPrice"
+              nameMax="maxPrice"
+              formatValue={(val) =>
+                `$${new Intl.NumberFormat().format(val)}${
+                  val === 200000 ? "+" : ""
+                }`
+              }
             />
 
             <RangeSlider
@@ -123,92 +143,99 @@ const InventoryFilterPanel = ({ onFilterChange }) => {
               max={100000}
               initialMin={0}
               initialMax={50000}
-              nameMin="minMileage" nameMax="maxMileage"
-              formatValue={val => `${new Intl.NumberFormat().format(val)} mi`}
+              nameMin="minMileage"
+              nameMax="maxMileage"
+              formatValue={(val) => `${new Intl.NumberFormat().format(val)} mi`}
             />
 
             <FilterGroup
               title="Fuel Type"
-              options={
-                Object.entries(filterCounts.fuel || {}).map(([value, count]) => ({
+              options={Object.entries(filterCounts.fuel || {}).map(
+                ([value, count]) => ({
                   value,
                   label: formatLabel(value),
-                  count
-                }))
-              }
+                  count,
+                })
+              )}
               name="fuel"
             />
 
             <FilterGroup
               title="Transmission"
-              options={
-                Object.entries(filterCounts.transmission || {}).map(([value, count]) => ({
+              options={Object.entries(filterCounts.transmission || {}).map(
+                ([value, count]) => ({
                   value,
                   label: formatLabel(value),
-                  count
-                }))
-              }
+                  count,
+                })
+              )}
               name="transmission"
             />
 
             <FilterGroup
               title="Drive Train"
-              options={
-                Object.entries(filterCounts.drivetrain || {}).map(([value, count]) => ({
+              options={Object.entries(filterCounts.drivetrain || {}).map(
+                ([value, count]) => ({
                   value,
                   label: formatLabel(value),
-                  count
-                }))
-              }
+                  count,
+                })
+              )}
               name="drivetrain"
             />
 
             <ColorOptions
               title="Color"
               colors={[
-                { value: 'black', color: '#000000', title: 'Black' },
-                { value: 'white', color: '#FFFFFF', title: 'White' },
-                { value: 'silver', color: '#C0C0C0', title: 'Silver' },
-                { value: 'gray', color: '#808080', title: 'Gray' },
-                { value: 'red', color: '#FF0000', title: 'Red' },
-                { value: 'blue', color: '#0000FF', title: 'Blue' },
-                { value: 'green', color: '#008000', title: 'Green' },
-                { value: 'brown', color: '#A52A2A', title: 'Brown' }
+                { value: "black", color: "#000000", title: "Black" },
+                { value: "white", color: "#FFFFFF", title: "White" },
+                { value: "silver", color: "#C0C0C0", title: "Silver" },
+                { value: "gray", color: "#808080", title: "Gray" },
+                { value: "red", color: "#FF0000", title: "Red" },
+                { value: "blue", color: "#0000FF", title: "Blue" },
+                { value: "green", color: "#008000", title: "Green" },
+                { value: "brown", color: "#A52A2A", title: "Brown" },
               ]}
               name="exterior_color"
             />
 
             {/* Other filters (boolean flags) */}
-            {
-              (() => {
-                const otherDefs = [
-                  { name: 'certified', label: 'Certified Pre-Owned' },
-                  { name: 'new', label: 'New Arrivals' },
-                  { name: 'special', label: 'Special Offers' }
-                ];
-                return (
-                  <FilterGroup
-                    title="Other"
-                    options={otherDefs.map(({ name, label }) => ({
-                      value: 'true',
-                      label,
-                      count: filterCounts[name]?.true || 0,
-                      name
-                    }))}
-                    useIndividualNames={true}
-                  />
-                );
-              })()
-            }
+            {(() => {
+              const otherDefs = [
+                { name: "certified", label: "Certified Pre-Owned" },
+                { name: "new", label: "New Arrivals" },
+                { name: "special", label: "Special Offers" },
+              ];
+              return (
+                <FilterGroup
+                  title="Other"
+                  options={otherDefs.map(({ name, label }) => ({
+                    value: "true",
+                    label,
+                    count: filterCounts[name]?.true || 0,
+                    name,
+                  }))}
+                  useIndividualNames={true}
+                />
+              );
+            })()}
 
             <div className="filter-actions">
-              <button type="submit" className="btn-primary">Apply Filters</button>
-              <button type="reset" className="btn-secondary" onClick={handleFormReset}>Reset All</button>
+              <button type="submit" className="btn-primary">
+                Apply Filters
+              </button>
+              <button
+                type="reset"
+                className="btn-secondary"
+                onClick={handleFormReset}
+              >
+                Reset All
+              </button>
             </div>
           </form>
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 

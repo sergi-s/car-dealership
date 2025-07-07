@@ -68,8 +68,8 @@ npm run dev
 
 1. Navigate to: `http://localhost:5173/admin/login`
 2. Use the demo credentials provided by the setup script:
-   - **Email**: `admin@demo.com`
-   - **Password**: `admin123456`
+   - **Email**: `admin@demo.com`.
+   - **Password**: `admin123456`.
 
 ## 📋 Demo Admin Credentials
 

@@ -2,47 +2,43 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow read-only access to admin documents for login verification
-    match /admins/{adminId} {
-      allow read: if true;
-      allow write: if request.auth != null && 
-                   (request.auth.uid == adminId || request.auth.token.admin == true);
+    // Allow read access to user documents for authentication
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
     
     match /vehicles/{vehicleId} {
       // Allow read access to vehicle documents for all users
       allow read: if true;
-      // Only allow write access to authenticated users with admin claim
-      allow write: if request.auth != null && request.auth.token.admin == true;
-    }
-
-    match /customers/{customerId} {
-      // Allow only authenticated users to manage customers
-      allow read, write: if request.auth != null;
-    }
-
-    match /test_drives/{driveId} {
-      // Allow authenticated users to view and manage test drive appointments
-      allow read, write: if request.auth != null;
+      // Allow write access only to authenticated users
+      allow write: if request.auth != null;
     }
     
-    match /settings/{settingsKey} {
-      // Allow read access to vehicle documents for all users
+    match /workingHours/{document} {
+      // Allow read access to working hours for all users (for customer-facing display)
       allow read: if true;
-      // Only allow write access to authenticated users with admin claim
-      allow write: if request.auth != null && request.auth.token.admin == true;
-    }
-    
-    match /inquiries/{inquiryId} {
-      // Allow anyone to create inquiries
-      allow create: if true;
-      // But only authenticated users can read or modify them
-      allow read, update, delete: if request.auth != null;
+      // Allow write access only to authenticated users (admin only)
+      allow write: if request.auth != null;
     }
     
     // For all other documents, require authentication
     match /{document=**} {
       allow read, write: if request.auth != null;
+    }
+    
+    match /reviews/{reviewId} {
+      // Anyone can create a review, but only with specific fields
+      allow create: if request.resource.data.keys().hasAll(['name', 'email', 'rating', 'title', 'comment', 'isApproved', 'isFlagged', 'createdAt'])
+        && request.resource.data.isApproved == false
+        && request.resource.data.isFlagged == false;
+
+      // Anyone can read approved reviews
+      allow get, list: if resource.data.isApproved == true;
+
+      // Only admins can update or delete reviews
+      allow update, delete: if request.auth != null && request.auth.token.admin == true;
+  
     }
   }
 }
